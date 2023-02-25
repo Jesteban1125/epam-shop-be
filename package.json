@@ -1,0 +1,28 @@
+{
+  "name": "epam-shop-be",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "node esbuild.js",
+    "deploy": "serverless deploy",
+    "build-deploy": "npm run build && npm run deploy",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jesteban1125/epam-shop-be.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jesteban1125/epam-shop-be/issues"
+  },
+  "homepage": "https://github.com/Jesteban1125/epam-shop-be#readme",
+  "devDependencies": {
+    "esbuild": "^0.17.10",
+    "jest": "^29.4.3",
+    "serverless": "^3.27.0"
+  }
+}
