@@ -8,6 +8,7 @@
     "build": "node esbuild.js",
     "deploy": "serverless deploy",
     "build-deploy": "npm run build && npm run deploy",
+    "insert-data": "node scriptToInsertDefaultData.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "repository": {
@@ -21,6 +22,8 @@
   },
   "homepage": "https://github.com/Jesteban1125/epam-shop-be#readme",
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.282.0",
+    "@aws-sdk/util-dynamodb": "^3.282.0",
     "esbuild": "^0.17.10",
     "jest": "^29.4.3",
     "serverless": "^3.27.0"
