@@ -6,6 +6,22 @@ provider:
   runtime: nodejs18.x
   httpApi:
     cors: true
+  environment:
+    PRODUCTS_TABLE_NAME: Products-Table
+    STOCKS_TABLE_NAME: Stocks-Table
+  iamRoleStatementsInherit: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.PRODUCTS_TABLE_NAME}"
+        - "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.STOCKS_TABLE_NAME}"
 
 package:
   exclude:
@@ -34,3 +50,38 @@ functions:
       - httpApi:
           path: /products/{productId}
           method: get
+  createProduct:
+    handler: createProduct-dist.handler
+    package:
+      include:
+        - createProduct-dist.js
+    events:
+      - httpApi:
+          path: /products
+          method: post
+
+resources:
+  Resources:
+    productsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PRODUCTS_TABLE_NAME}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+
+    stocksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.STOCKS_TABLE_NAME}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH

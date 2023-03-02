@@ -16,4 +16,9 @@ import { build } from 'esbuild'
     entryPoints: ['getProductsById.js'],
     outfile: 'getProductsById-dist.js'
   })
+  await build({
+    ...props,
+    entryPoints: ['createProduct.js'],
+    outfile: 'createProduct-dist.js'
+  })
 })()
