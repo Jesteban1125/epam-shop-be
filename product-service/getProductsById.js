@@ -26,7 +26,6 @@ const getStock = async (productId) => {
   return result.map((x) => unmarshall(x))
 }
 
-
 const handler = async (event) => {
   let result = []
   let statusCode = 200
