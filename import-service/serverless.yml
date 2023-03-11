@@ -1,0 +1,69 @@
+service: import-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  httpApi:
+    cors: true
+  environment:
+    S3_BUCKET_NAME: import-storage-epam-202303
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:ListBucket
+      Resource:
+        - "arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}"
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+        - "arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*"
+
+package:
+  exclude:
+    - ./**
+  include:
+    - package.json
+  individually: true
+
+functions:
+  importProductsFile:
+    handler: importProductsFile-dist.handler
+    package:
+      include:
+        - importProductsFile-dist.js
+    events:
+      - httpApi:
+          path: /import
+          method: get
+  importFileParser:
+    handler: importFileParser-dist.handler
+    package:
+      include:
+        - importFileParser-dist.js
+    events:
+      - s3:
+          bucket:
+            Ref: ImportStorage
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+            - suffix: .csv
+          existing: true
+
+resources:
+  Resources:
+    ImportStorage:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: "${self:provider.environment.S3_BUCKET_NAME}"
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - PUT
+              AllowedOrigins:
+                - '*'
+              MaxAge: 3600

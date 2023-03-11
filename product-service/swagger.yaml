@@ -8,14 +8,14 @@ servers:
   - url: https://0lwwwphm2k.execute-api.us-east-1.amazonaws.com
 
 tags:
-  - name: shop
+  - name: product-service
     description: Products
 
 paths:
   /products:
     get:
       tags:
-        - shop
+        - product-service
       summary: Get product list
       description: Returns a product list
       responses:
@@ -31,7 +31,7 @@ paths:
           description: Server error
     post:
       tags:
-        - shop
+        - product-service
       summary: Create a product
       description: Create a product
       requestBody:
@@ -52,7 +52,7 @@ paths:
   /products/{productId}:
     get:
       tags:
-        - shop
+        - product-service
       summary: Get product by Id
       description: Returns a single product
       parameters:

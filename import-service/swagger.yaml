@@ -1,0 +1,60 @@
+openapi: 3.0.3
+
+info:
+  title: Import Service
+  version: 1.0.11
+
+servers:
+  - url: https://a3u3jeo6o4.execute-api.us-east-1.amazonaws.com
+
+tags:
+  - name: import-service
+    description: Import
+
+paths:
+  /import:
+    get:
+      tags:
+        - import-service
+      summary: Get url to upload csv file
+      description: Returns a url to upload csv file
+      parameters:
+        - name: name
+          in: query
+          description: CSV file name
+          required: true
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Server error
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        count:
+          type: integer
+          format: int64
+        price:
+          type: integer
+          format: int64
