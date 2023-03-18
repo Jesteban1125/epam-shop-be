@@ -8,6 +8,14 @@ provider:
     cors: true
   environment:
     S3_BUCKET_NAME: import-storage-epam-202303
+    CATALOG_ITEMS_QUEUE_URL:
+      Fn::Join:
+        - ''
+        - - https://sqs.
+          - Ref: AWS::Region
+          - .amazonaws.com/
+          - Ref: AWS::AccountId
+          - /catalogItemsQueue
   iamRoleStatements:
     - Effect: Allow
       Action:

@@ -21,4 +21,9 @@ import { build } from 'esbuild'
     entryPoints: ['createProduct.js'],
     outfile: 'createProduct-dist.js'
   })
+  await build({
+    ...props,
+    entryPoints: ['catalogBatchProcess.js'],
+    outfile: 'catalogBatchProcess-dist.js'
+  })
 })()

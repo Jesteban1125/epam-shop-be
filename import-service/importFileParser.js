@@ -4,9 +4,12 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand
 } from '@aws-sdk/client-s3'
+import { randomUUID } from 'crypto'
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs'
 import { parse } from 'csv-parse'
 
-const client = new S3Client({ region: process.env.AWS_REGION })
+const clientS3 = new S3Client({ region: process.env.AWS_REGION })
+const clientSQS = new SQSClient({ region: process.env.AWS_REGION })
 
 const getData = async (bucketName, key) => {
   const params = {
@@ -14,14 +17,14 @@ const getData = async (bucketName, key) => {
     Key: key
   }
   const result = (
-    await client.send(
+    await clientS3.send(
       new GetObjectCommand(params)
     )
   )
 
   return new Promise((resolve, reject) => {
     const items = []
-    result.Body.pipe(parse())
+    result.Body.pipe(parse({ columns: true}))
       .on('data', (data) => items.push(data))
       .on('error', (error) => reject(data))
       .on('end', () => {
@@ -30,7 +33,14 @@ const getData = async (bucketName, key) => {
   })
 }
 
-const printData = (data) => data.map((item) => console.log(item))
+const sendMessage = async (data) => {
+  const params = {
+    Entries: data.map((item) => ({ Id: randomUUID(), MessageBody: JSON.stringify(item) })),
+    QueueUrl: process.env.CATALOG_ITEMS_QUEUE_URL
+  }
+
+  await clientSQS.send(new SendMessageBatchCommand(params))
+}
 
 const moveFile = async (bucketName, key) => {
   const copyParams = {
@@ -38,13 +48,13 @@ const moveFile = async (bucketName, key) => {
     Bucket: bucketName,
     Key: key.replace('uploaded/', 'parsed/')
   }
-  await client.send(new CopyObjectCommand(copyParams))
+  await clientS3.send(new CopyObjectCommand(copyParams))
 
   const deleteParams = {
     Bucket: bucketName,
     Key: key
   }
-  await client.send(new DeleteObjectCommand(deleteParams))
+  await clientS3.send(new DeleteObjectCommand(deleteParams))
 }
 
 const handler = async (event) => {
@@ -53,7 +63,7 @@ const handler = async (event) => {
   for (const record of event?.Records) {
     const result = await getData(record.s3.bucket.name, record.s3.object.key)
 
-    printData(result)
+    await sendMessage(result)
 
     await moveFile(record.s3.bucket.name, record.s3.object.key)
   }
