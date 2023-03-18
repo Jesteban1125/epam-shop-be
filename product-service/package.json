@@ -15,7 +15,10 @@
   "license": "ISC",
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.282.0",
+    "@aws-sdk/client-sns": "^3.290.0",
     "@aws-sdk/util-dynamodb": "^3.282.0",
+    "aws-sdk-client-mock": "^2.1.1",
+    "aws-sdk-client-mock-jest": "^2.1.1",
     "esbuild": "^0.17.10",
     "jest": "^29.4.3",
     "serverless": "^3.27.0"

@@ -9,7 +9,11 @@ provider:
   environment:
     PRODUCTS_TABLE_NAME: Products-Table
     STOCKS_TABLE_NAME: Stocks-Table
-  iamRoleStatementsInherit: true
+    CATALOG_ITEMS_QUEUE_URL:
+      Ref: catalogItemsQueue
+    CREATE_PRODUCT_TOPIC_ARN:
+      Ref: createProductTopic
+  # iamRoleStatementsInherit: true
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -22,6 +26,11 @@ provider:
       Resource:
         - "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.PRODUCTS_TABLE_NAME}"
         - "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.STOCKS_TABLE_NAME}"
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource:
+        - Ref: createProductTopic
 
 package:
   exclude:
@@ -59,6 +68,23 @@ functions:
       - httpApi:
           path: /products
           method: post
+  catalogBatchProcess:
+    handler: catalogBatchProcess-dist.handler
+    package:
+      include:
+        - catalogBatchProcess-dist.js
+    events:
+      - sqs:
+          arn:
+            Fn::Join:
+              - ':'
+              - - arn
+                - aws
+                - sqs
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+                - catalogItemsQueue
+          batchSize: 5
 
 resources:
   Resources:
@@ -85,3 +111,44 @@ resources:
         KeySchema:
           - AttributeName: product_id
             KeyType: HASH
+
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: catalogItemsQueue
+
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: createProductTopic
+        # Subscription:
+        #   - Endpoint: juan_rios@epam.com
+        #     Protocol: email
+
+    createProductSuscriptionLessThan3:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: createProductTopic
+        Endpoint: juan_rios@epam.com
+        Protocol: email
+        FilterPolicy:
+          count:
+            - numeric: 
+              - "<"
+              - 3
+        FilterPolicyScope: MessageAttributes
+
+    createProductSuscriptionMoreThan3:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: createProductTopic
+        Endpoint: jesteban1125@gmail.com
+        Protocol: email
+        FilterPolicy:
+          count:
+            - numeric: 
+              - ">="
+              - 3
+        FilterPolicyScope: MessageAttributes

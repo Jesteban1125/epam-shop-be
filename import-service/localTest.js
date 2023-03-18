@@ -5,6 +5,7 @@ import { handler as importFileParser } from './importFileParser-dist.js'
 
 process.env.AWS_PROFILE = 'personal'
 process.env.S3_BUCKET_NAME = 'import-storage-epam-202303'
+process.env.CATALOG_ITEMS_QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/142176105809/catalogItemsQueue'
 
 const importProductsFileEvent = {
   queryStringParameters: {
