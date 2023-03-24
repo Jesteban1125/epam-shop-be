@@ -1,0 +1,28 @@
+service: authorization-service
+frameworkVersion: '3'
+
+plugins:
+  - serverless-dotenv-plugin
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  environment:
+    CREDENTIAL: ${env:CREDENTIAL}
+
+package:
+  exclude:
+    - ./**
+  include:
+    - products.json
+    - package.json
+  individually: true
+
+functions:
+  basicAuthorizer:
+    handler: basicAuthorizer-dist.handler
+    package:
+      include:
+        - basicAuthorizer-dist.js
