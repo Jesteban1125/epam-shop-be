@@ -6,6 +6,16 @@ provider:
   runtime: nodejs18.x
   httpApi:
     cors: true
+    authorizers:
+      customAuthorizer:
+        type: request
+        enableSimpleResponses: true
+        payloadVersion: '2.0'
+        resultTtlInSeconds: 0
+        identitySource:
+          - '$request.header.Authorization'
+        functionArn: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:authorization-service-dev-basicAuthorizer"
+
   environment:
     S3_BUCKET_NAME: import-storage-epam-202303
     CATALOG_ITEMS_QUEUE_URL:
@@ -45,6 +55,8 @@ functions:
       - httpApi:
           path: /import
           method: get
+          authorizer:
+            name: customAuthorizer
   importFileParser:
     handler: importFileParser-dist.handler
     package:

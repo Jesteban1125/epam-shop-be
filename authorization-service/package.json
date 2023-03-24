@@ -1,0 +1,19 @@
+{
+  "name": "authorization-service",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "node esbuild.js",
+    "deploy": "serverless deploy",
+    "build-deploy": "npm run build && npm run deploy"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.17.13",
+    "serverless": "^3.29.0",
+    "serverless-dotenv-plugin": "^6.0.0"
+  }
+}
